@@ -1,0 +1,5 @@
+#- name: COOLCAM
+#- author: Torrbullen & Isaaaa
+#- href: https://github.com/Torrbullen/COOLCAM
+#- version: 1.04
+#- description: COOL camera for cool people
