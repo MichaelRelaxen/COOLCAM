@@ -3,3 +3,5 @@ obj/*
 /patch.txt
 EBOOT.BIN
 EBOOT.ELF.bak
+.vs/*
+.git/*

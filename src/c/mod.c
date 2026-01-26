@@ -182,6 +182,8 @@ int32_t pad_redirect(uint32_t port_no, cellPadData *data) {
 	
 	if(data->BTN_SELECT && timer == 0){
 		timer = 20;
+		freecamenabled = 1;
+		lookatratchetenabled = 0;
 		enablemod = !enablemod;
 	}
 	data->BTN_SELECT = NO_INPUT;
