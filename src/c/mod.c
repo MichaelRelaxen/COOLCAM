@@ -23,6 +23,14 @@ typedef struct {
 	Vec4 pos;
 } Camera;
 
+typedef struct {
+	int saved;
+	Camera cam;
+	float yaw;
+	float pitch;
+} Savepos;
+
+
 Vec4 scalar_multiplication(float scale, Vec4 v){
 	v.x = v.x*scale;
 	v.y = v.y*scale;
@@ -40,6 +48,19 @@ Vec4 vec_add(Vec4 v, Vec4 u){
 	return result;
 }
 
+void vecclear(Vec4 *v){
+	v->x = 0;
+	v->y = 0;
+	v->z = 0;
+	v->w = 0;
+}
+
+void vecassign(Vec4 to, Vec4 from){
+	to.x = from.x;
+	to.y = from.y;
+	to.z = from.z;
+	to.w = from.w;
+}
 static float PI = 3.14159f;
 extern Camera* camera;
 
@@ -149,8 +170,8 @@ Vec4 lookatpos;
 
 //KEEP FRICTION BETWEEN -1 <-> 0 OR YOU WILL ACCELERATE TOO FAST AND CRASH
 // -1 = MAXFRICTION, 0 = NO FRICTION;
-static float airfriction = -0.1f; 
-static float turnfriction = -0.1f; 
+static float airfriction; 
+static float turnfriction; 
 static float turnrange = 90.0f;
 Vec4 acceleration;
 static float yawacceleration = 0;
@@ -158,13 +179,14 @@ static float yawvelocity = 0;
 static float pitchacceleration = 0;
 static float pitchvelocity = 0;
 Vec4 velocity;
-static float rotspeed = 0.03f;
-static float movespeed = 0.05f;
+static float rotspeed;
+static float movespeed;
 int timer;
 static int freecamenabled = 0;
 static int lookatratchetenabled = 0;
 static int init = 0;
 Vec4 worldup;
+Savepos savepos;
 int enablemod;
 
 void setlookatpos(){
@@ -206,6 +228,11 @@ int32_t pad_redirect(uint32_t port_no, cellPadData *data) {
 		worldup.y = 0;
 		worldup.z = 1;
 		worldup.w = 0;
+		rotspeed = 0.03f;
+		movespeed = 0.05f;
+		airfriction = -0.1f;
+		turnfriction = -0.1f;
+		init = 1;
 	}
 
 	if (data->BTN_START && timer == 0){
@@ -218,6 +245,24 @@ int32_t pad_redirect(uint32_t port_no, cellPadData *data) {
 		lookatratchetenabled++;
 		if (lookatratchetenabled > 2)
 			lookatratchetenabled = 0;
+	}
+	
+	if(data->BTN_SQUARE){
+		savepos.cam = *camera;
+		savepos.saved = 1;
+		savepos.yaw = yaw;
+		savepos.pitch = pitch;
+	}
+	
+	if(data->BTN_CIRCLE){
+		if (savepos.saved){
+			*camera = savepos.cam;
+			yaw = savepos.yaw;
+			pitch = savepos.pitch;
+			pitchvelocity = 0;
+			yawvelocity = 0;
+			vecclear(&velocity);
+		}
 	}
 	
 	float y = yaw * (PI / 180.0f);
@@ -332,5 +377,6 @@ int32_t pad_redirect(uint32_t port_no, cellPadData *data) {
     data->ANA_R_H = NEUTRAL; 
     data->ANA_R_V = NEUTRAL;
 	
+	//¯\_( ͡° ͜ʖ ͡°)_/¯
 	return ret;
 }
